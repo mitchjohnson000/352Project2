@@ -43,7 +43,6 @@ int main(int argn, char *argv[]){
 
     char * encodedHash;
     input = (char *)malloc(100 + 1);
-    input[0] = '\0';
     memset(buf,0x0, SHA_DIGEST_LENGTH*2);
     memset(hash,0x0,SHA_DIGEST_LENGTH);
     getline(&input,&nbytes,stdin);
@@ -56,9 +55,8 @@ int main(int argn, char *argv[]){
            sprintf((char*)&(buf[i*2]), "%02x", hash[i]);
        }
       encodedHash = stringToEncodedAscii(buf);
-      joinedStr = (char *)malloc(strlen(input) + 256);
-      joinedStr[0] = '\0';
-      strcat(joinedStr,input);
+      joinedStr = (char *)malloc(strlen(input) + strlen(encodedHash) + 1);
+      strcpy(joinedStr,input);
       strcat(joinedStr,encodedHash);
       send(clientSocket, joinedStr,strlen(joinedStr),0);
       free(joinedStr);

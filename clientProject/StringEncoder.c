@@ -185,8 +185,8 @@ char * stringToEncodedAscii(char *s){
    // printf("\nnormal : %ld ; retI : %d; encodedRet : %d; encoded : %s",ret,retI,encodedRet ,paddedStr);
     strcat(finalResEncoded,paddedStr);
   }
-  char * st = (char *)malloc(strlen(finalResEncoded) + 1);
-  strncpy(st,finalResEncoded,strlen(finalResEncoded) + 1);
+  char * st = (char *)malloc(201);
+  strncpy(st,finalResEncoded,200);
   return st;
  // printf("\nstringToEncodedAscii :: %s",finalResEncoded);
   
