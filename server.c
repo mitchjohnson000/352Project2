@@ -62,7 +62,7 @@ void *connection_handler(void *socket_desc)
     char exit[] = "exit";
     char client_message[4096];
     client_message[0] = '\0';
-    char buf[SHA_DIGEST_LENGTH*2];
+    char buf2[SHA_DIGEST_LENGTH*2];
     char * serverEncodedString;
 
     unsigned char hash[SHA_DIGEST_LENGTH];
@@ -82,15 +82,15 @@ void *connection_handler(void *socket_desc)
 
       char * s;
       s = strtok(client_message,"\n");
-      memset(buf,0x0, SHA_DIGEST_LENGTH*2);
+      memset(buf2,0x0, SHA_DIGEST_LENGTH*2);
       memset(hash,0x0,SHA_DIGEST_LENGTH);
       SHA1(s,strlen(s),hash);
       int i;
       for (i=0; i < SHA_DIGEST_LENGTH; i++) {
-         sprintf((char*)&(buf[i*2]), "%02x", hash[i]);
+         sprintf((char*)&(buf2[i*2]), "%02x", hash[i]);
       }
-      printf("Server Hash %s\n", buf);
-      serverEncodedString = stringToEncodedAscii(buf);
+      printf("Server Hash %s\n", buf2);
+      serverEncodedString = stringToEncodedAscii(buf2);
       s = strtok(NULL,"\0");
       printf("Client Encoded String: %s\n", s);
       printf("Server Encoded String: %s\n", serverEncodedString);

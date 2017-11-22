@@ -117,7 +117,7 @@ void stringToReverseAscii(char *s){
 //stringToEncodedAscii prints the encoded representaion of the ASCII representaion of a given string(Encoding is based on encoding array at the top of this file)
 char * stringToEncodedAscii(char *s){
   char *ptr = s;
-  char finalRes[256];
+  char finalRes[256] = "";
   
   //First, get the ASCII representation of the given string
   while(*ptr){
@@ -146,8 +146,7 @@ char * stringToEncodedAscii(char *s){
   
   char *newPtr = finalRes;
   int j,k;
-  char  * finalResEncoded = (char *)malloc(256);
-  finalResEncoded[0] = '\0';
+  char  finalResEncoded[] = "";
   
   //We now take 3 bits at a time, find the encoding from encoding table at top and append the encoding to a new result string.
   for(j=0;j<(lenOfFinalRes/3);j++){
@@ -186,8 +185,9 @@ char * stringToEncodedAscii(char *s){
    // printf("\nnormal : %ld ; retI : %d; encodedRet : %d; encoded : %s",ret,retI,encodedRet ,paddedStr);
     strcat(finalResEncoded,paddedStr);
   }
-  
-  return finalResEncoded;
+  char * st = (char *)malloc(strlen(finalResEncoded) + 1);
+  strncpy(st,finalResEncoded,strlen(finalResEncoded) + 1);
+  return st;
  // printf("\nstringToEncodedAscii :: %s",finalResEncoded);
   
 }

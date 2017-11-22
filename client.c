@@ -3,22 +3,9 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <openssl/sha.h>
+#include <stdlib.h>
 #include "StringEncoder.c"
 
-char* deblank(char* input)                                         
-{
-    int i,j;
-    char *output=input;
-    for (i = 0, j = 0; i<strlen(input); i++,j++)          
-    {
-        if (input[i]!=' ')                           
-            output[j]=input[i];                     
-        else
-            j--;                                     
-    }
-    output[j]=0;
-    return output;
-}
 
 int main(int argn, char *argv[]){
   int clientSocket;
@@ -50,6 +37,8 @@ int main(int argn, char *argv[]){
   while(1){
 
     char buffer[4096];
+    memset(&buffer[0], 0, sizeof(buffer));
+
     char * joinedStr;
 
     char * encodedHash;
@@ -61,25 +50,16 @@ int main(int argn, char *argv[]){
     if(strncmp(input,exit,4) == 0){
         send(clientSocket, input,strlen(input),0);
     }else{
-      // input = deblank(input);
       SHA1(input,strlen(input) - 1,hash);
-      int i;
-      for (i=0; i < SHA_DIGEST_LENGTH; i++) {
-          sprintf((char*)&(buf[i*2]), "%02x", hash[i]);
-      }
-
-      printf("Client Hash %s\n",buf);
-
+       int i;
+       for (i=0; i < SHA_DIGEST_LENGTH; i++) {
+           sprintf((char*)&(buf[i*2]), "%02x", hash[i]);
+       }
       encodedHash = stringToEncodedAscii(buf);
-      printf("Client original hash %s\n",encodedHash);
-
-      joinedStr = (char *)malloc(strlen(input) + 255 + 1);
+      joinedStr = (char *)malloc(strlen(input) + 256);
       joinedStr[0] = '\0';
       strcat(joinedStr,input);
       strcat(joinedStr,encodedHash);
-      joinedStr[strlen(input) + 256 + 1] = '\0';
-      printf("Client Joined %s\n",joinedStr);
-
       send(clientSocket, joinedStr,strlen(joinedStr),0);
       free(joinedStr);
       free(encodedHash);
@@ -87,16 +67,17 @@ int main(int argn, char *argv[]){
     }
 
     recv(clientSocket, buffer, 4096, 0);
-
-    /*---- Print the received message ----*/
-    printf("Data received: %s \n",buffer); 
     if(strncmp(buffer,exit,4) == 0){
+      free(input);
       break;
     }
 
+
+    /*---- Print the received message ----*/
+    printf("Data received: %s \n",buffer); 
     memset(&buffer[0], 0, sizeof(buffer));
-    fflush(stdin);
-    fflush(stdout);
+   // fflush(stdin);
+    //fflush(stdout);
   }
   
   return 0;
