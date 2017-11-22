@@ -3,6 +3,8 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <pthread.h>
+#include <openssl/sha.h>
+#include "StringEncoder.c"
 void *connection_handler(void *);
 
 int main(){
@@ -59,27 +61,54 @@ void *connection_handler(void *socket_desc)
     int read_size;
     char exit[] = "exit";
     char client_message[4096];
+    client_message[0] = '\0';
+    char buf[SHA_DIGEST_LENGTH*2];
+    char * serverEncodedString;
+
+    unsigned char hash[SHA_DIGEST_LENGTH];
+
 
 
     printf("Inside of thread, thread ID of % d \n",sock);
 
     while(1){
 
-      recv(sock , client_message , 4096 , 0); 
-      printf("%s",client_message);
 
+      recv(sock , client_message , 4096 , 0); 
       if(strncmp(client_message,exit,4) == 0){
-        printf("exiting \n");
         send(sock,client_message,strlen(client_message),0);
-        memset(&client_message[0], 0, sizeof(client_message));
-        close(sock);
-        pthread_exit(0);
+        break;
       }
 
-      send(sock,client_message,strlen(client_message),0);
+      char * s;
+      s = strtok(client_message,"\n");
+      memset(buf,0x0, SHA_DIGEST_LENGTH*2);
+      memset(hash,0x0,SHA_DIGEST_LENGTH);
+      SHA1(s,strlen(s),hash);
+      int i;
+      for (i=0; i < SHA_DIGEST_LENGTH; i++) {
+         sprintf((char*)&(buf[i*2]), "%02x", hash[i]);
+      }
+      printf("Server Hash %s\n", buf);
+      serverEncodedString = stringToEncodedAscii(buf);
+      s = strtok(NULL,"\0");
+      printf("Client Encoded String: %s\n", s);
+      printf("Server Encoded String: %s\n", serverEncodedString);
+      if(strcmp(s,serverEncodedString) == 0){
+        char message[] = "true";
+        send(sock,message,strlen(message),0);
+
+      }else{
+        char message[] = "false";
+        send(sock,message,strlen(message),0);
+
+      }
+      free(serverEncodedString);
       memset(&client_message[0], 0, sizeof(client_message));
 
     }
+    close(sock);
+    pthread_exit(0);
 
     return 0;
 }

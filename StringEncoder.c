@@ -146,7 +146,8 @@ char * stringToEncodedAscii(char *s){
   
   char *newPtr = finalRes;
   int j,k;
-  char  * finalResEncoded = (char *)malloc(256 * sizeof(char));
+  char  * finalResEncoded = (char *)malloc(256);
+  finalResEncoded[0] = '\0';
   
   //We now take 3 bits at a time, find the encoding from encoding table at top and append the encoding to a new result string.
   for(j=0;j<(lenOfFinalRes/3);j++){
